@@ -11,19 +11,17 @@ Future<void> register({
   required BuildContext context,
 }) async {
   try {
-   UserCredential userCredential= await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: Email,
-      password: password,
-    );
-    User? user=userCredential.user;
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: Email, password: password);
+    User? user = userCredential.user;
     await FirebaseFirestore.instance.collection("users").doc(user?.uid).set({
-"Name":username,
-"Email":Email
+      "Name": username,
+      "Email": Email,
     });
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text("Signup Sucessfull")));
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Homesc(username: username,),));
+    
   } catch (e) {
     ScaffoldMessenger.of(
       context,
@@ -36,30 +34,40 @@ Future<void> login({
   required String password,
   required BuildContext context,
 }) async {
-  try {
+  try {UserCredential userCredential=
     await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
+    User? user=userCredential.user;
+    DocumentSnapshot userDoc= await FirebaseFirestore.instance.collection("users").doc(user?.uid).get();
+    String username=userDoc['Name']??"";
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text("login successfull")));
-    
+       Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Homesc(username: username)),
+    );
   } catch (e) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(e.toString())));
   }
 }
+
 Future<void> forgotp({
   required String email,
   required BuildContext context,
-}) async{
-  try{
+}) async {
+  try {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Check your inbox")));
-  }
-  catch(e) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Check your inbox")));
+  } catch (e) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(e.toString())));
   }
 }
